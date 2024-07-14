@@ -1,0 +1,16 @@
+x-gpu: &x-gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            capabilities: ["gpu"]
+
+services:
+  xtts:
+    <<: *x-gpu
+    image: ghcr.io/coqui-ai/xtts-streaming-server:latest-cuda121
+    environment:
+      - COQUI_TOS_AGREED=1
+    ports:
+      - "8000:80"
