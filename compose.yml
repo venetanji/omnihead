@@ -6,7 +6,31 @@ x-gpu: &x-gpu
           - driver: nvidia
             capabilities: ["gpu"]
 
+x-base: &x-base
+  init: true
+  environment:
+    - LOG_LEVEL=INFO
+  volumes:
+    - .:/workspace/app/
+    - ~/.cache/huggingface:/root/.cache/huggingface
+  working_dir: /workspace/app
+
 services:
+  app:
+    <<: [*x-gpu,*x-base]
+    build: .
+    environment:
+      - DAILY_API_KEY=${DAILY_API_KEY}
+      - DAILY_ROOM_URL=${DAILY_ROOM_URL}
+    shm_size: 20g
+    command: 'sleep infinity'
+
+  ollama:
+    <<: *x-gpu
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+
   xtts:
     <<: *x-gpu
     image: ghcr.io/coqui-ai/xtts-streaming-server:latest-cuda121
@@ -14,3 +38,6 @@ services:
       - COQUI_TOS_AGREED=1
     ports:
       - "8000:80"
+
+volumes:
+  ollama:

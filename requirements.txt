@@ -1,0 +1,5 @@
+pipecat-ai[openai,daily,xtts]
+langchain
+langchain_community
+langchain_core
+python-dotenv
