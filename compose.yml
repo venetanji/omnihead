@@ -16,14 +16,24 @@ x-base: &x-base
   working_dir: /workspace/app
 
 services:
-  app:
+  app: &x-app-base
     <<: [*x-gpu,*x-base]
     build: .
+    depends_on:
+      xtts:
+        condition: service_healthy
     environment:
       - DAILY_API_KEY=${DAILY_API_KEY}
       - DAILY_ROOM_URL=${DAILY_ROOM_URL}
     shm_size: 20g
+    command: 'python dailyroom.py'
+    profiles:
+      - production
+  
+  app-dev:
+    <<: *x-app-base
     command: 'sleep infinity'
+    profiles: []
 
   ollama:
     <<: *x-gpu
@@ -36,8 +46,17 @@ services:
     image: ghcr.io/coqui-ai/xtts-streaming-server:latest-cuda121
     environment:
       - COQUI_TOS_AGREED=1
-    ports:
-      - "8000:80"
+    volumes:
+      - xtts:/root/.local/share/tts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
 
+
+# caching models into these volumes
 volumes:
   ollama:
+  xtts:

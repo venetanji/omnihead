@@ -66,7 +66,7 @@ async def main(room_url: str, token):
             aiohttp_session=session,
             voice_id="Claribel Dervla",
             language="en",
-            base_url="http://xtts:80"
+            base_url="http://xtts"
         )
 
         prompt = ChatPromptTemplate.from_messages(
